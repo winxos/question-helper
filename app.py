@@ -33,7 +33,7 @@ def find_question(txt):
             mm = v
             maxid = r
     if maxid >= 0:
-        ans.put(maxid)
+        ans.put((maxid,mm))
 def get_text(img):
     result = ocr.ocr(img, cls=True)
     res = ""
@@ -71,10 +71,12 @@ if __name__ == "__main__":
         if idx % 10 == 0:
             iq.put(img)
         if not ans.empty():
-            r = ans.get()
+            r,v = ans.get()
+            print(r,v)
             if r != last_ans:
                 ansm = np.zeros((300,SCREEN_WIDTH, 3), np.uint8)
                 last_ans = r
+            ansm = add_text(ansm,"置信度：%.2f"%v,200,0)
             a = table.row_values(r)[2]
             ansm = add_text(ansm,table.row_values(r)[2],10,0)
             if a.find("A")>=0:
