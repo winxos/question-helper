@@ -77,16 +77,16 @@ if __name__ == "__main__":
                 ansm = np.zeros((300,SCREEN_WIDTH, 3), np.uint8)
                 last_ans = r
             ansm = add_text(ansm,"置信度：%.2f"%v,200,0)
-            a = table.row_values(r)[2]
-            ansm = add_text(ansm,table.row_values(r)[2],10,0)
+            a = str(table.row_values(r)[2])
+            ansm = add_text(ansm,a,10,0)
             if a.find("A")>=0:
-                ansm = add_text(ansm,table.row_values(r)[3],10,100)
+                ansm = add_text(ansm,str(table.row_values(r)[3]),10,100)
             if a.find("B")>=0:
-                ansm = add_text(ansm,table.row_values(r)[4],10,150)
+                ansm = add_text(ansm,str(table.row_values(r)[4]),10,150)
             if a.find("C")>=0:
-                ansm = add_text(ansm,table.row_values(r)[5],10,200)
+                ansm = add_text(ansm,str(table.row_values(r)[5]),10,200)
             if a.find("D")>=0:
-                ansm = add_text(ansm,table.row_values(r)[6],10,250)
+                ansm = add_text(ansm,str(table.row_values(r)[6]),10,250)
             cv2.imshow("ans",ansm)
         temp = np.asarray(img)
         temp = temp.reshape((SCREEN_HEIGHT, SCREEN_WIDTH, 3))
