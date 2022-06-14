@@ -8,6 +8,8 @@ import queue
 import Levenshtein
 import datetime
 from PIL import Image, ImageDraw, ImageFont
+import os
+os.environ['KMP_DUPLICATE_LIB_OK'] = 'True' # for fix libiomp5md.dll error
 
 iq = queue.Queue(1)
 ans = queue.Queue(1)
