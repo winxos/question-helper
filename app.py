@@ -9,6 +9,13 @@ import Levenshtein
 import datetime
 from PIL import Image, ImageDraw, ImageFont
 import os
+import pyttsx3
+
+voice =  pyttsx3.init()
+voice.setProperty("rate", 150)
+def say_word(s):
+    voice.say("答案是  %s"%s)
+    voice.runAndWait()
 os.environ['KMP_DUPLICATE_LIB_OK'] = 'True' # for fix libiomp5md.dll error
 
 iq = queue.Queue(1)
@@ -86,6 +93,7 @@ if __name__ == "__main__":
             ansm = add_text(ansm,"匹配度：        ",200,0)
             ansm = add_text(ansm,"匹配度：%.2f"%v,200,0)
             a = str(table.row_values(r)[2])
+            say_word(a)
             ansm = add_text(ansm,a,10,0)
             if a.find("A")>=0:
                 ansm = add_text(ansm,str(table.row_values(r)[3]),10,100)
