@@ -44,6 +44,7 @@ def find_question(txt):
             maxid = r
     if maxid >= 0:
         ans.put((maxid,mm))
+    return mm
 def get_text(img):
     result = ocr.ocr(img, cls=True)
     res = ""
@@ -52,7 +53,9 @@ def get_text(img):
         if len(rr[0])>6 and rr[1] > 0.8:
             res += rr[0]
     print("RAW:%s"%res)
-    find_question(res)
+    res = find_question(res)
+    if res < 0.5:
+        cv2.imwrite("./imgs/%s.jpg"%datetime.datetime.now().strftime('%Y%m%d%H%M%S'), img)
 def work():
     while True:
         if not iq.empty():
@@ -69,6 +72,7 @@ if __name__ == "__main__":
     cam.set(cv2.CAP_PROP_FRAME_WIDTH,SCREEN_WIDTH)
     cam.set(cv2.CAP_PROP_FRAME_HEIGHT,SCREEN_HEIGHT)
     idx = 0
+    say_ct = 0
     cv2.namedWindow("ans")
     cv2.moveWindow("ans", 800, 300)
     ansm = np.zeros((300,SCREEN_WIDTH, 3), np.uint8)
@@ -87,13 +91,15 @@ if __name__ == "__main__":
             if r != last_ans:
                 ansm = np.zeros((300,SCREEN_WIDTH, 3), np.uint8)
                 last_ans = r
+                say_ct = 0
                 if v <0.5: # not in data
-                    cv2.imwrite("./imgs/%s.jpg"%datetime.datetime.now().strftime('%Y%m%d%H%M%S'), img)
                     ansm = add_text(ansm,"注意，题库可能未找到！",50,50,textColor=(255, 0, 0))
             ansm = add_text(ansm,"匹配度：        ",200,0)
             ansm = add_text(ansm,"匹配度：%.2f"%v,200,0)
             a = str(table.row_values(r)[2])
-            say_word(a)
+            say_ct+=1
+            if say_ct % 3 == 0:
+                say_word(a)
             ansm = add_text(ansm,a,10,0)
             if a.find("A")>=0:
                 ansm = add_text(ansm,str(table.row_values(r)[3]),10,100)
