@@ -53,6 +53,8 @@ def get_text(img):
         if len(rr[0])>6 and rr[1] > 0.8:
             res += rr[0]
     print("RAW:%s"%res)
+    if len(res) < 5: # filter meanless 
+        return
     res = find_question(res)
     if res < 0.5:
         cv2.imwrite("./imgs/%s.jpg"%datetime.datetime.now().strftime('%Y%m%d%H%M%S'), img)
@@ -113,6 +115,6 @@ if __name__ == "__main__":
         temp = np.asarray(img)
         temp = temp.reshape((SCREEN_HEIGHT, SCREEN_WIDTH, 3))
         cv2.imshow("cam",img)
-        if cv2.waitKey(100) == 27:
+        if cv2.waitKey(200) == 27:
             break
 
