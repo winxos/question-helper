@@ -90,6 +90,8 @@ if __name__ == "__main__":
         if not ans.empty():
             r,v = ans.get()
             print(r,v)
+            if r == last_ans:
+                say_ct +=1
             if r != last_ans:
                 ansm = np.zeros((300,SCREEN_WIDTH, 3), np.uint8)
                 last_ans = r
@@ -99,8 +101,7 @@ if __name__ == "__main__":
             ansm = add_text(ansm,"匹配度：        ",200,0)
             ansm = add_text(ansm,"匹配度：%.2f"%v,200,0)
             a = str(table.row_values(r)[2])
-            say_ct+=1
-            if say_ct % 3 == 0:
+            if say_ct > 2:
                 say_word(a)
             ansm = add_text(ansm,a,10,0)
             if a.find("A")>=0:
