@@ -116,7 +116,7 @@ if __name__ == "__main__":
             a = str(table.row_values(r)[2])
             if say_ct > 2:
                 say_word(n, a)
-            ansm = add_text(ansm,a,10,0)
+            ansm = add_text(ansm,"%s. %s"%(n,a),10,0)
             if a.find("A")>=0:
                 ansm = add_text(ansm,str(table.row_values(r)[3]),10,100)
             if a.find("B")>=0:
