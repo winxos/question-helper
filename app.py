@@ -10,11 +10,19 @@ import datetime
 from PIL import Image, ImageDraw, ImageFont
 import os
 import pyttsx3
+import logging
+logger = logging.getLogger("simple")
+logger.setLevel(logging.DEBUG)
+fh = logging.FileHandler("log.txt")
+fh.setLevel(logging.DEBUG)
+formatter = logging.Formatter("[%(asctime)s][%(levelname)s]%(message)s", '%Y-%m-%d %H:%M:%S')
+fh.setFormatter(formatter)
+logger.addHandler(fh)
 
 voice =  pyttsx3.init()
 voice.setProperty("rate", 150)
-def say_word(s):
-    voice.say("答案是  %s"%s)
+def say_word(n,s):
+    voice.say("题目 %s, 答案是 %s"%(n,s))
     voice.runAndWait()
 os.environ['KMP_DUPLICATE_LIB_OK'] = 'True' # for fix libiomp5md.dll error
 
@@ -33,17 +41,18 @@ def add_text(img, text, left, top, textColor=(255, 255, 0), textSize=30):
     draw.text((left, top), text, textColor, font=fontStyle)
     # 转换回OpenCV格式
     return cv2.cvtColor(np.asarray(img), cv2.COLOR_RGB2BGR)
-def find_question(txt):
+def find_question(num, txt):
     mm = 0
     maxid = -1
     for r in range(table.nrows):
         v = Levenshtein.ratio(txt, table.row_values(r)[1])
         if v > mm:
-            print(v,table.row_values(r)[1])
             mm = v
             maxid = r
     if maxid >= 0:
-        ans.put((maxid,mm))
+        ans.put((num, maxid,mm))
+    if mm < 0.5:
+        logger.info("new question:%f,%s",v, res)
     return mm
 def get_text(img):
     result = ocr.ocr(img, cls=True)
@@ -52,23 +61,27 @@ def get_text(img):
         rr = li[1]
         if len(rr[0])>6 and rr[1] > 0.8:
             res += rr[0]
-    print("RAW:%s"%res)
-    if len(res) < 5: # filter meanless 
+    l = res.find(".") #problem
+    if len(res)<5 or l<1 or l>2:
         return
-    res = find_question(res)
-    if res < 0.5:
-        cv2.imwrite("./imgs/%s.jpg"%datetime.datetime.now().strftime('%Y%m%d%H%M%S'), img)
+    num = res[:l]
+    txt = res[l+1:]
+    find_question(num, txt)
 def work():
     while True:
         if not iq.empty():
             get_text(iq.get())
         sleep(0.5)
 if __name__ == "__main__":
+    logger.info("question system start.")
+    cam=cv2.VideoCapture(0)
+    if cam is None or not cam.isOpened():
+        logger.error("camera open failed, exit.")
+        exit(0)
+    ocr = PaddleOCR(lang="ch")  # need to run only once to download and load model into memory
     t = Thread(target=work)
     t.setDaemon(True)
     t.start()
-    ocr = PaddleOCR(lang="ch")  # need to run only once to download and load model into memory
-    cam=cv2.VideoCapture(0)
     SCREEN_WIDTH=800
     SCREEN_HEIGHT=600
     cam.set(cv2.CAP_PROP_FRAME_WIDTH,SCREEN_WIDTH)
@@ -88,8 +101,8 @@ if __name__ == "__main__":
         if idx % 10 == 0:
             iq.put(img)
         if not ans.empty():
-            r,v = ans.get()
-            print(r,v)
+            n,r,v = ans.get()
+            logger.debug("%s,%f,%s", n, v, table.row_values(r)[1])
             if r == last_ans:
                 say_ct +=1
             if r != last_ans:
@@ -102,7 +115,7 @@ if __name__ == "__main__":
             ansm = add_text(ansm,"匹配度：%.2f"%v,200,0)
             a = str(table.row_values(r)[2])
             if say_ct > 2:
-                say_word(a)
+                say_word(n, a)
             ansm = add_text(ansm,a,10,0)
             if a.find("A")>=0:
                 ansm = add_text(ansm,str(table.row_values(r)[3]),10,100)
