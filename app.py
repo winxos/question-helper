@@ -52,20 +52,25 @@ def find_question(num, txt):
     if maxid >= 0:
         ans.put((num, maxid,mm))
     if mm < 0.5:
-        logger.info("new question:%f,%s",v, res)
+        logger.info("new question:%f,%s",v, txt)
     return mm
 def get_text(img):
     result = ocr.ocr(img, cls=True)
     res = ""
     for li in result:
         rr = li[1]
-        if len(rr[0])>6 and rr[1] > 0.8:
+        if len(rr[0])>5 and rr[1] > 0.8:
             res += rr[0]
     l = res.find(".") #problem
-    if len(res)<5 or l<1 or l>2:
+    print(res)
+    if len(res)<5:
         return
-    num = res[:l]
-    txt = res[l+1:]
+    if l==1 or l==2:
+        num = res[:l]
+        txt = res[l+1:]
+    else:
+        num = 0
+        txt = res
     find_question(num, txt)
 def work():
     while True:
@@ -109,12 +114,12 @@ if __name__ == "__main__":
                 ansm = np.zeros((300,SCREEN_WIDTH, 3), np.uint8)
                 last_ans = r
                 say_ct = 0
-                if v <0.5: # not in data
+                if v <0.7: # not in data
                     ansm = add_text(ansm,"注意，题库可能未找到！",50,50,textColor=(255, 0, 0))
             ansm = add_text(ansm,"匹配度：        ",200,0)
             ansm = add_text(ansm,"匹配度：%.2f"%v,200,0)
             a = str(table.row_values(r)[2])
-            if say_ct > 2:
+            if say_ct > 0:
                 say_word(n, a)
             ansm = add_text(ansm,"%s. %s"%(n,a),10,0)
             if a.find("A")>=0:
