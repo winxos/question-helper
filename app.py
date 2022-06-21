@@ -44,6 +44,7 @@ def add_text(img, text, left, top, textColor=(255, 255, 0), textSize=30):
 def find_question(num, txt):
     mm = 0
     maxid = -1
+    logger.info("QUESTIOIN:%d,%s",num, txt)
     for r in range(table.nrows):
         v = Levenshtein.ratio(txt, table.row_values(r)[1])
         if v > mm:
@@ -51,9 +52,8 @@ def find_question(num, txt):
             maxid = r
     if maxid >= 0:
         ans.put((num, maxid,mm))
-        logger.info("Q:%d,%f,%d,%s",num, v, maxid, txt)
         if v < 0.5:
-            logger.info("NEW QUESTIOIN? %f", v)
+            logger.info("NEW QUESTIOIN? %f, %s", v,txt)
     return mm
 def get_text(img):
     result = ocr.ocr(img, cls=True)
