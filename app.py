@@ -52,8 +52,8 @@ def find_question(num, txt):
             maxid = r
     if maxid >= 0:
         ans.put((num, maxid,mm))
-        if v < 0.5:
-            logger.info("NEW QUESTIOIN? %f, %s", v,txt)
+        if mm < 0.5:
+            logger.info("NEW QUESTIOIN? %f, %s", mm,txt)
     return mm
 def get_text(img):
     result = ocr.ocr(img, cls=True)
